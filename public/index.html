@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Superstore Sales & Profitability Intelligence</title>
+  <link rel="stylesheet" href="/static/styles.css">
+  <!-- Plotly.js CDN for fast interactive charts -->
+  <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+</head>
+<body>
+  <div class="app-layout">
+    
+    <!-- =======================================================
+         SIDEBAR: Global Controls & Segmentation Filters
+         ======================================================= -->
+    <aside class="app-sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-badge">🔷</div>
+        <div class="logo-text">
+          <h2>SUPERSTORE</h2>
+          <span>ANALYTICS HUB</span>
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <label for="filterPreset">⚡ Quick View Preset</label>
+        <select id="filterPreset" class="filter-select">
+          <option value="All Transactions">All Transactions (Full Dataset)</option>
+          <option value="Loss-Making Orders Only">Loss-Making Orders Only</option>
+          <option value="High Discount (> 20%) Orders">High Discount (> 20%) Orders</option>
+          <option value="Furniture Category Deep-Dive">Furniture Category Deep-Dive</option>
+          <option value="Technology Category Only">Technology Category Only</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>📅 Order Date Range</label>
+        <div class="date-range-row">
+          <input type="date" id="filterStartDate" class="filter-input" value="2019-01-03">
+          <input type="date" id="filterEndDate" class="filter-input" value="2022-12-30">
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <label for="filterRegion">📍 Region</label>
+        <select id="filterRegion" class="filter-select">
+          <option value="ALL">All Regions (4)</option>
+          <option value="West">West</option>
+          <option value="East">East</option>
+          <option value="Central">Central</option>
+          <option value="South">South</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="filterCategory">📦 Product Category</label>
+        <select id="filterCategory" class="filter-select">
+          <option value="ALL">All Categories (3)</option>
+          <option value="Technology">Technology</option>
+          <option value="Office Supplies">Office Supplies</option>
+          <option value="Furniture">Furniture</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="filterSubCategory">🏷️ Sub-Category</label>
+        <select id="filterSubCategory" class="filter-select">
+          <option value="ALL">All Sub-Categories (17)</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="filterSegment">👥 Customer Segment</label>
+        <select id="filterSegment" class="filter-select">
+          <option value="ALL">All Segments (3)</option>
+          <option value="Consumer">Consumer</option>
+          <option value="Corporate">Corporate</option>
+          <option value="Home Office">Home Office</option>
+        </select>
+      </div>
+
+      <button id="btnResetFilters" class="btn-reset">🔄 Reset All Filters</button>
+
+      <div class="sidebar-status-box">
+        <div style="font-weight: 700; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
+          <span>⚙️</span> Engine: SQLite 3 Indexed
+        </div>
+        <div>• Total Records: <b id="lblTotalRecords">9,993</b></div>
+        <div>• Span: <b>2019</b> to <b>2022</b></div>
+        <div>• Query Engine: <b style="color: var(--color-success);">Ready & Active</b></div>
+      </div>
+    </aside>
+
+    <!-- =======================================================
+         MAIN DASHBOARD
+         ======================================================= -->
+    <main class="app-main">
+      
+      <!-- Top Executive Banner -->
+      <header class="hero-banner">
+        <div>
+          <h1><span>🔷</span> Superstore Sales & Profitability Intelligence</h1>
+          <p>Dual-Engine Analytics (SQLite SQL + Pandas) | 9,993 Transacted Records across US Retail Markets</p>
+        </div>
+        <div class="badge-pill-group">
+          <div class="badge-pill"><span>🟢</span> SQLite Engine Active</div>
+          <div class="badge-pill" id="lblFilteredCount"><span>📊</span> 9,993 Filtered Rows</div>
+        </div>
+      </header>
+
+      <!-- Navigation Tabs -->
+      <nav class="tab-navigation">
+        <button class="tab-btn active" data-tab="tab-overview">📊 Executive Overview</button>
+        <button class="tab-btn" data-tab="tab-revenue">💰 Revenue & Profitability</button>
+        <button class="tab-btn" data-tab="tab-regional">🗺️ Regional & Segments</button>
+        <button class="tab-btn" data-tab="tab-underperformers">⚠️ Underperformer Engine & Simulator</button>
+        <button class="tab-btn" data-tab="tab-sql">🔍 SQL Query Explorer</button>
+        <button class="tab-btn" data-tab="tab-recommendations">📋 Strategic Recommendations</button>
+      </nav>
+
+      <!-- =======================================================
+           TAB 1: EXECUTIVE OVERVIEW
+           ======================================================= -->
+      <section id="tab-overview" class="tab-panel active">
+        
+        <!-- KPI Scorecard -->
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-header">
+              <div class="kpi-title">Total Revenue</div>
+              <div class="kpi-icon">💵</div>
+            </div>
+            <div class="kpi-value" id="kpiRevenue">$0.00</div>
+            <div class="kpi-footer">
+              <span id="kpiUnits">0 units sold</span>
+              <span class="metric-pill neutral">Top Line</span>
+            </div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-header">
+              <div class="kpi-title">Total Profit</div>
+              <div class="kpi-icon">📈</div>
+            </div>
+            <div class="kpi-value" id="kpiProfit">$0.00</div>
+            <div class="kpi-footer">
+              <span id="kpiLossOrders">0 loss orders</span>
+              <span class="metric-pill positive" id="kpiMarginPill">0.0%</span>
+            </div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-header">
+              <div class="kpi-title">Profit Margin</div>
+              <div class="kpi-icon">🎯</div>
+            </div>
+            <div class="kpi-value" id="kpiMargin">0.0%</div>
+            <div class="kpi-footer">
+              <span>Target: 15.0%</span>
+              <span class="metric-pill neutral" id="kpiAvgDiscount">Disc: 0.0%</span>
+            </div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-header">
+              <div class="kpi-title">Total Orders</div>
+              <div class="kpi-icon">📦</div>
+            </div>
+            <div class="kpi-value" id="kpiOrders">0</div>
+            <div class="kpi-footer">
+              <span id="kpiCustomers">0 buyers</span>
+              <span class="metric-pill neutral" id="kpiLines">0 items</span>
+            </div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-header">
+              <div class="kpi-title">Avg Order Value</div>
+              <div class="kpi-icon">🛒</div>
+            </div>
+            <div class="kpi-value" id="kpiAOV">$0.00</div>
+            <div class="kpi-footer">
+              <span id="kpiLossRate">Loss Rate: 0.0%</span>
+              <span class="metric-pill neutral">AOV</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dual Engine Parity Container -->
+        <div class="card">
+          <div class="card-header">
+            <h3>⚡ Dual-Engine Verification: SQLite SQL vs. Pandas Parity</h3>
+          </div>
+          <div class="grid-2">
+            <div>
+              <p style="font-size: 0.85rem; color: var(--color-muted); margin-bottom: 8px;">Real-time SQLite Analytical Aggregation Query:</p>
+              <pre class="sql-ide" id="sqlLiveQuery">SELECT 
+    COUNT(DISTINCT order_id) AS total_orders,
+    COALESCE(SUM(sales), 0.0) AS total_sales,
+    COALESCE(SUM(profit), 0.0) AS total_profit,
+    ROUND((SUM(profit)/SUM(sales))*100, 2) AS profit_margin_pct
+FROM superstore;</pre>
+            </div>
+            <div>
+              <div class="table-container">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Metric</th>
+                      <th>Pandas Engine</th>
+                      <th>SQLite Engine</th>
+                      <th>Parity Status</th>
+                    </tr>
+                  </thead>
+                  <tbody id="parityTableBody">
+                    <!-- Dynamic Parity Rows -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Charts Grid -->
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header">
+              <h3>Monthly Performance Trajectory</h3>
+            </div>
+            <div id="chartMonthlyTrend" style="height: 360px;"></div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <h3>Revenue vs Profit by Master Category</h3>
+            </div>
+            <div id="chartCategoryPerf" style="height: 360px;"></div>
+          </div>
+        </div>
+
+        <!-- Filtered Transactions Explorer -->
+        <div class="card">
+          <div class="card-header">
+            <h3>📋 Filtered Transactions Data Explorer</h3>
+            <button id="btnExportCSV" class="btn-primary">📥 Export Filtered CSV</button>
+          </div>
+          <div class="table-container" style="max-height: 320px;">
+            <table class="data-table" id="previewTable">
+              <thead>
+                <tr>
+                  <th>Order ID</th>
+                  <th>Date</th>
+                  <th>Customer</th>
+                  <th>Segment</th>
+                  <th>Region</th>
+                  <th>State</th>
+                  <th>Category</th>
+                  <th>Sub-Category</th>
+                  <th>Sales</th>
+                  <th>Discount</th>
+                  <th>Profit</th>
+                </tr>
+              </thead>
+              <tbody id="previewTableBody">
+                <!-- Transaction rows -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- =======================================================
+           TAB 2: REVENUE & PROFITABILITY
+           ======================================================= -->
+      <section id="tab-revenue" class="tab-panel">
+        <div class="card">
+          <div class="card-header">
+            <h3>💰 Revenue & Profitability Trajectory Over Time</h3>
+            <div style="display: flex; gap: 8px;">
+              <select id="selectGranularity" class="filter-select" style="width: 140px;">
+                <option value="Monthly">Monthly</option>
+                <option value="Quarterly">Quarterly</option>
+                <option value="Yearly">Yearly</option>
+              </select>
+            </div>
+          </div>
+          <div id="chartRevenueTrend" style="height: 400px;"></div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header">
+              <h3>Sub-Category Sales vs Profit Disparity</h3>
+            </div>
+            <div id="chartSubCategoryBars" style="height: 480px;"></div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <h3>Discount % vs Profit ($) (The Discount Cliff)</h3>
+            </div>
+            <div id="chartDiscountScatter" style="height: 480px;"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- =======================================================
+           TAB 3: REGIONAL & SEGMENTS
+           ======================================================= -->
+      <section id="tab-regional" class="tab-panel">
+        <div class="card">
+          <div class="card-header">
+            <h3>🗺️ US Geographic Distribution</h3>
+            <select id="selectMapMetric" class="filter-select" style="width: 200px;">
+              <option value="profit">Profit ($)</option>
+              <option value="sales">Sales ($)</option>
+              <option value="profit_margin_pct">Profit Margin (%)</option>
+              <option value="loss_rate_pct">Loss Rate (%)</option>
+            </select>
+          </div>
+          <div id="chartGeoMap" style="height: 460px;"></div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header">
+              <h3>🏆 Top 10 Most Profitable States</h3>
+            </div>
+            <div class="table-container">
+              <table class="data-table" id="topStatesTable">
+                <thead>
+                  <tr>
+                    <th>State</th>
+                    <th>Region</th>
+                    <th>Sales</th>
+                    <th>Profit</th>
+                    <th>Margin</th>
+                    <th>Avg Disc</th>
+                  </tr>
+                </thead>
+                <tbody id="topStatesBody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3>🚨 Top 10 Loss-Making States</h3>
+            </div>
+            <div class="table-container">
+              <table class="data-table" id="bottomStatesTable">
+                <thead>
+                  <tr>
+                    <th>State</th>
+                    <th>Region</th>
+                    <th>Sales</th>
+                    <th>Profit</th>
+                    <th>Margin</th>
+                    <th>Avg Disc</th>
+                  </tr>
+                </thead>
+                <tbody id="bottomStatesBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header">
+              <h3>👥 Customer Segment Breakdown</h3>
+            </div>
+            <div id="chartSegments" style="height: 340px;"></div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <h3>🚚 Shipping Mode Margins</h3>
+            </div>
+            <div id="chartShipping" style="height: 340px;"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- =======================================================
+           TAB 4: UNDERPERFORMER ENGINE & SIMULATOR
+           ======================================================= -->
+      <section id="tab-underperformers" class="tab-panel">
+        
+        <!-- Key Findings Callouts -->
+        <div class="card">
+          <div class="card-header">
+            <h3>📌 Key Findings & Executive Takeaways</h3>
+          </div>
+          <div id="takeawaysContainer">
+            <!-- Dynamic Takeaway Callouts -->
+          </div>
+        </div>
+
+        <!-- Flagged Bottom Sub-Categories -->
+        <div class="card">
+          <div class="card-header">
+            <h3>🚨 Flagged Underperforming Sub-Categories</h3>
+          </div>
+          <div class="kpi-grid" id="flaggedSubcatsGrid">
+            <!-- Flagged Sub-Category Cards -->
+          </div>
+        </div>
+
+        <!-- Interactive What-If Simulator -->
+        <div class="card">
+          <div class="card-header">
+            <h3>💡 Interactive Pricing & Discount Cap Simulator</h3>
+          </div>
+          <p style="font-size: 0.9rem; color: var(--color-muted); margin-bottom: 16px;">
+            Simulate the enterprise financial lift of enforcing a hard ceiling on discounts. COGS is held constant while margin is recovered on over-discounted transactions.
+          </p>
+
+          <div class="grid-2" style="margin-bottom: 20px;">
+            <div class="slider-container">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <label style="font-weight: 700; font-size: 0.9rem;">Maximum Discount Ceiling:</label>
+                <span id="lblDiscountCap" style="font-size: 1.3rem; font-weight: 800; color: var(--color-primary);">20%</span>
+              </div>
+              <input type="range" id="sliderDiscountCap" class="custom-range" min="0.05" max="0.40" step="0.05" value="0.20">
+              <span style="font-size: 0.78rem; color: var(--color-royal-blue);">Transactions above this rate will have prices adjusted to the ceiling.</span>
+            </div>
+
+            <div class="kpi-grid" style="margin-bottom: 0;">
+              <div class="kpi-card" style="border-top-color: var(--color-success);">
+                <div class="kpi-title">Recovered Profit</div>
+                <div class="kpi-value" id="simRecoveredProfit" style="color: var(--color-success);">+$0.00</div>
+                <div class="kpi-footer">
+                  <span id="simProfitLift">+0.0% Profit Lift</span>
+                  <span class="metric-pill positive">Net Gain</span>
+                </div>
+              </div>
+
+              <div class="kpi-card" style="border-top-color: var(--color-primary);">
+                <div class="kpi-title">Simulated Total Profit</div>
+                <div class="kpi-value" id="simTotalProfit">$0.00</div>
+                <div class="kpi-footer">
+                  <span id="simNewMargin">Margin: 0.0%</span>
+                  <span class="metric-pill positive">Simulated</span>
+                </div>
+              </div>
+
+              <div class="kpi-card" style="border-top-color: var(--color-sapphire);">
+                <div class="kpi-title">Salvaged Orders</div>
+                <div class="kpi-value" id="simSalvagedOrders">0</div>
+                <div class="kpi-footer">
+                  <span id="simCappedCount">0 orders capped</span>
+                  <span class="metric-pill neutral">Flipped</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Top Loss SKUs and Basket Discovery -->
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header">
+              <h3>🔍 Top Loss-Making Products</h3>
+            </div>
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Product Name</th>
+                    <th>Category</th>
+                    <th>Total Loss</th>
+                    <th>Avg Disc</th>
+                  </tr>
+                </thead>
+                <tbody id="lossProductsBody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3>🛒 Market Basket Co-Occurrence Discovery</h3>
+            </div>
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Product Pair</th>
+                    <th>Categories</th>
+                    <th>Orders</th>
+                    <th>Affinity</th>
+                  </tr>
+                </thead>
+                <tbody id="basketAffinityBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- =======================================================
+           TAB 5: SQL QUERY EXPLORER
+           ======================================================= -->
+      <section id="tab-sql" class="tab-panel">
+        <div class="card">
+          <div class="card-header">
+            <h3>🔍 SQL Query Explorer (Database Engine Showcase)</h3>
+          </div>
+          <p style="font-size: 0.9rem; color: var(--color-muted); margin-bottom: 16px;">
+            Execute analytical SQL queries directly against the indexed SQLite enterprise database. Features <b>Window Functions (<code>RANK()</code>, <code>LEAD()</code>, <code>DENSE_RANK()</code>, <code>SUM() OVER()</code>)</b>, <b>Common Table Expressions (CTEs)</b>, and <b>Multi-Level Aggregations</b>.
+          </p>
+
+          <div style="margin-bottom: 16px;">
+            <label style="font-weight: 700; font-size: 0.85rem; text-transform: uppercase; color: var(--color-muted);">Select Curated Analytical SQL Query:</label>
+            <select id="selectCuratedQuery" class="filter-select" style="margin-top: 6px; font-weight: 600;">
+              <!-- Dynamic Curated Options -->
+            </select>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <span id="lblQuerySkills" style="font-size: 0.82rem; font-weight: 700; color: var(--color-primary);"></span>
+            <button id="btnRunCuratedSql" class="btn-primary">🚀 Execute SQL Query</button>
+          </div>
+
+          <pre class="sql-ide" id="curatedSqlCode"></pre>
+
+          <div id="sqlExecutionStatus" style="margin-bottom: 12px; font-size: 0.85rem; font-weight: 600;"></div>
+
+          <div class="table-container" style="max-height: 360px;">
+            <table class="data-table" id="sqlResultsTable">
+              <thead id="sqlResultsHead"></thead>
+              <tbody id="sqlResultsBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Free-Text Read-Only SQL Playground -->
+        <div class="card">
+          <div class="card-header">
+            <h3>🛡️ Read-Only SQL Playground</h3>
+          </div>
+          <p style="font-size: 0.85rem; color: var(--color-muted); margin-bottom: 12px;">
+            Execute custom read-only <code>SELECT</code> or <code>WITH</code> queries against the <code>superstore</code> table. Mutating commands (DROP, DELETE, UPDATE) are blocked.
+          </p>
+
+          <textarea id="customSqlInput" class="sql-textarea">SELECT 
+    category,
+    sub_category,
+    COUNT(*) AS total_orders,
+    ROUND(SUM(sales), 2) AS total_sales,
+    ROUND(SUM(profit), 2) AS total_profit,
+    ROUND((SUM(profit) / SUM(sales)) * 100, 2) AS profit_margin_pct
+FROM superstore
+GROUP BY category, sub_category
+ORDER BY total_profit DESC;</textarea>
+
+          <div style="margin-top: 12px; margin-bottom: 16px;">
+            <button id="btnRunCustomSql" class="btn-primary">⚡ Execute Custom SQL</button>
+          </div>
+
+          <div id="customSqlStatus" style="margin-bottom: 12px; font-size: 0.85rem; font-weight: 600;"></div>
+
+          <div class="table-container" style="max-height: 300px;">
+            <table class="data-table" id="customSqlResultsTable">
+              <thead id="customSqlHead"></thead>
+              <tbody id="customSqlBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- =======================================================
+           TAB 6: STRATEGIC RECOMMENDATIONS
+           ======================================================= -->
+      <section id="tab-recommendations" class="tab-panel">
+        <div class="card">
+          <div class="card-header">
+            <h3>📋 Executive Business Recommendations</h3>
+          </div>
+          <p style="font-size: 0.92rem; color: var(--color-muted); margin-bottom: 20px;">
+            Actionable corporate strategies derived from transactional analysis, discount sensitivity modeling, and regional profitability patterns.
+          </p>
+
+          <div class="grid-2">
+            <div class="callout danger">
+              <h4 style="margin-bottom: 8px; font-size: 1.05rem;">1. 🛑 Implement Discount Governance & Margin Floors</h4>
+              <ul style="padding-left: 20px; font-size: 0.88rem; display: flex; flex-direction: column; gap: 6px;">
+                <li><b>Institute Hard 20% Discount Ceiling:</b> Restrict standard sales rep discounting to a maximum of 20%. Any discount above 20% requires VP approval.</li>
+                <li><b>Eliminate Tables & Bookcases Deep Discounts:</b> Tables operate at an aggregate -$17.7K loss because over 35% of orders carry 40%+ discounts. Capping discounts will recover an estimated <b>+$40,000+</b> in net profits.</li>
+                <li><b>Shift to Value Bundling:</b> Instead of slashing prices on low-margin furniture, bundle tables with high-margin chairs or office accessories.</li>
+              </ul>
+            </div>
+
+            <div class="callout blue">
+              <h4 style="margin-bottom: 8px; font-size: 1.05rem;">2. 🗺️ Regional Restructuring & Supply Chain Realignment</h4>
+              <ul style="padding-left: 20px; font-size: 0.88rem; display: flex; flex-direction: column; gap: 6px;">
+                <li><b>Central & Southern Territory Audit:</b> States like Texas (-$25.7K profit) and Ohio (-$17.0K profit) suffer from excessive regional discounting. Audit territory manager margin targets.</li>
+                <li><b>Scale West & East Best Practices:</b> California (+$76.4K) and New York (+$74.0K) generate high profits with disciplined pricing. Apply their merchandising mix to Central markets.</li>
+                <li><b>Local Logistics Hub Optimization:</b> Reduce shipping transit times for high-volume urban centers (NYC, Los Angeles, Seattle).</li>
+              </ul>
+            </div>
+
+            <div class="callout success">
+              <h4 style="margin-bottom: 8px; font-size: 1.05rem;">3. 👥 Customer Cohort & B2B Volume Strategy</h4>
+              <ul style="padding-left: 20px; font-size: 0.88rem; display: flex; flex-direction: column; gap: 6px;">
+                <li><b>Corporate Loyalty Agreements:</b> Corporate and Home Office segments generate higher average order values ($460+). Shift from ad-hoc discounts to annual volume rebates.</li>
+                <li><b>Retention Incentives:</b> Top repeat buyers (Raymond Buch, Sean Miller) make only 5-6 orders over 4 years. Implement an enterprise loyalty rewards program.</li>
+                <li><b>Monetize Expedited Shipping:</b> Standard Class handles 60% of orders. Repackage Same-Day and First-Class delivery as a premium paid tier.</li>
+              </ul>
+            </div>
+
+            <div class="callout blue">
+              <h4 style="margin-bottom: 8px; font-size: 1.05rem;">4. 📦 Product Portfolio & Inventory Rationalization</h4>
+              <ul style="padding-left: 20px; font-size: 0.88rem; display: flex; flex-direction: column; gap: 6px;">
+                <li><b>Prioritize High-Margin Core Lines:</b> Copiers (32% margin), Paper (42% margin), and Envelopes (42% margin) deliver consistent positive returns. Allocate premium digital catalog real estate.</li>
+                <li><b>Remediate Worst-Performing SKUs:</b> Re-evaluate supplier contracts or discontinue chronic loss leaders like the <i>'Cisco TelePresence System EX90'</i> (-$1,811 profit) and <i>'Cubify CubeX 3D Printer'</i>.</li>
+                <li><b>Capitalize on Basket Affinities:</b> Automatically cross-sell complementary accessories during checkout.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Dashboard JavaScript Client -->
+  <script src="/static/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,621 @@
+/* =========================================================
+   Superstore Sales Intelligence - Blue & White Enterprise Theme
+   ========================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+:root {
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Blue & White Enterprise Palette */
+  --color-brand-navy: #0f172a;
+  --color-royal-blue: #1e3a8a;
+  --color-sapphire: #1d4ed8;
+  --color-primary: #2563eb;
+  --color-accent-blue: #3b82f6;
+  --color-ice-blue: #eff6ff;
+  --color-ice-border: #dbeafe;
+  --color-white: #ffffff;
+  --color-bg-page: #f8fafc;
+  --color-border: #e2e8f0;
+  --color-border-hover: #93c5fd;
+  --color-muted: #64748b;
+  --color-text-dark: #0f172a;
+
+  /* Semantic Alerts */
+  --color-success: #059669;
+  --color-success-bg: #ecfdf5;
+  --color-success-border: #a7f3d0;
+  --color-danger: #dc2626;
+  --color-danger-bg: #fef2f2;
+  --color-danger-border: #fecaca;
+  --color-warning: #d97706;
+  --color-warning-bg: #fffbeb;
+  --color-warning-border: #fde68a;
+
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 6px 12px -2px rgba(37, 99, 235, 0.04);
+  --shadow-hover: 0 10px 20px -3px rgba(37, 99, 235, 0.12), 0 4px 6px -2px rgba(37, 99, 235, 0.06);
+  --shadow-lg: 0 10px 25px -5px rgba(37, 99, 235, 0.2), 0 8px 10px -6px rgba(37, 99, 235, 0.15);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-bg-page);
+  color: var(--color-text-dark);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* App Container Layout */
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* -------------------------------------------------------------
+   SIDEBAR STYLING
+   ------------------------------------------------------------- */
+.app-sidebar {
+  width: 300px;
+  background-color: var(--color-white);
+  border-right: 1px solid var(--color-border);
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  z-index: 20;
+}
+
+.sidebar-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.logo-badge {
+  background: var(--color-primary);
+  color: var(--color-white);
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  font-weight: 800;
+  box-shadow: 0 4px 8px rgba(37, 99, 235, 0.25);
+}
+
+.logo-text h2 {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--color-brand-navy);
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.logo-text span {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.filter-group label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-muted);
+}
+
+.filter-select, .filter-input {
+  width: 100%;
+  padding: 9px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  background-color: var(--color-bg-page);
+  font-family: var(--font-sans);
+  font-size: 0.88rem;
+  color: var(--color-brand-navy);
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.filter-select:focus, .filter-input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  background-color: var(--color-white);
+}
+
+.date-range-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.btn-reset {
+  background-color: var(--color-ice-blue);
+  color: var(--color-sapphire);
+  border: 1px solid var(--color-ice-border);
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.btn-reset:hover {
+  background-color: #dbeafe;
+  color: var(--color-royal-blue);
+  border-color: #bfdbfe;
+}
+
+.sidebar-status-box {
+  background-color: var(--color-ice-blue);
+  border: 1px solid var(--color-ice-border);
+  border-radius: 10px;
+  padding: 12px;
+  font-size: 0.8rem;
+  color: var(--color-royal-blue);
+  margin-top: auto;
+}
+
+/* -------------------------------------------------------------
+   MAIN CONTENT STYLING
+   ------------------------------------------------------------- */
+.app-main {
+  flex: 1;
+  padding: 28px 36px;
+  overflow-y: auto;
+  max-width: 1600px;
+}
+
+/* Top Hero Banner */
+.hero-banner {
+  background: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 50%, #2563eb 100%);
+  border-radius: 16px;
+  padding: 24px 32px;
+  color: var(--color-white);
+  margin-bottom: 24px;
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.hero-banner h1 {
+  font-size: 1.7rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.hero-banner p {
+  font-size: 0.92rem;
+  color: #dbeafe;
+}
+
+.badge-pill-group {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.badge-pill {
+  background: rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(8px);
+  padding: 6px 14px;
+  border-radius: 9999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-white);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* -------------------------------------------------------------
+   NAVIGATION TABS
+   ------------------------------------------------------------- */
+.tab-navigation {
+  display: flex;
+  gap: 6px;
+  background-color: #f1f5f9;
+  padding: 6px;
+  border-radius: 12px;
+  border: 1px solid var(--color-border);
+  margin-bottom: 24px;
+  overflow-x: auto;
+}
+
+.tab-btn {
+  background: transparent;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-family: var(--font-sans);
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--color-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tab-btn:hover {
+  background-color: #e2e8f0;
+  color: var(--color-brand-navy);
+}
+
+.tab-btn.active {
+  background-color: var(--color-white);
+  color: var(--color-sapphire);
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.12);
+  font-weight: 700;
+}
+
+/* Tab Panels */
+.tab-panel {
+  display: none;
+}
+
+.tab-panel.active {
+  display: block;
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* -------------------------------------------------------------
+   METRIC SCORECARD
+   ------------------------------------------------------------- */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.kpi-card {
+  background-color: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-top: 3.5px solid var(--color-primary);
+  border-radius: 14px;
+  padding: 18px 20px;
+  box-shadow: var(--shadow-card);
+  transition: all 0.25s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 124px;
+}
+
+.kpi-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--color-border-hover);
+  box-shadow: var(--shadow-hover);
+}
+
+.kpi-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.kpi-title {
+  font-size: 0.76rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-muted);
+}
+
+.kpi-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background-color: var(--color-ice-blue);
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  border: 1px solid var(--color-ice-border);
+}
+
+.kpi-value {
+  font-size: 1.7rem;
+  font-weight: 800;
+  color: var(--color-brand-navy);
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+}
+
+.kpi-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+  font-size: 0.78rem;
+  color: var(--color-muted);
+  font-weight: 500;
+}
+
+.metric-pill {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+.metric-pill.positive {
+  background-color: var(--color-success-bg);
+  color: var(--color-success);
+  border: 1px solid var(--color-success-border);
+}
+
+.metric-pill.negative {
+  background-color: var(--color-danger-bg);
+  color: var(--color-danger);
+  border: 1px solid var(--color-danger-border);
+}
+
+.metric-pill.neutral {
+  background-color: var(--color-ice-blue);
+  color: var(--color-sapphire);
+  border: 1px solid var(--color-ice-border);
+}
+
+/* -------------------------------------------------------------
+   WHITE CARD CONTAINERS & GRIDS
+   ------------------------------------------------------------- */
+.card {
+  background-color: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  padding: 22px 24px;
+  box-shadow: var(--shadow-card);
+  margin-bottom: 24px;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.card-header h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-brand-navy);
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+/* -------------------------------------------------------------
+   CALLOUTS & EXECUTIVE BANNER
+   ------------------------------------------------------------- */
+.callout {
+  padding: 14px 18px;
+  border-radius: 0 10px 10px 0;
+  margin: 12px 0;
+  font-size: 0.92rem;
+  border-left-width: 4px;
+  border-style: solid;
+}
+
+.callout.blue {
+  background-color: var(--color-ice-blue);
+  border-color: var(--color-primary);
+  color: var(--color-royal-blue);
+  border-left-color: var(--color-primary);
+}
+
+.callout.danger {
+  background-color: var(--color-danger-bg);
+  border-color: var(--color-danger-border);
+  color: #991b1b;
+  border-left-color: var(--color-danger);
+}
+
+.callout.success {
+  background-color: var(--color-success-bg);
+  border-color: var(--color-success-border);
+  color: #065f46;
+  border-left-color: var(--color-success);
+}
+
+/* -------------------------------------------------------------
+   TABLES
+   ------------------------------------------------------------- */
+.table-container {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: 10px;
+  border: 1px solid var(--color-border);
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  text-align: left;
+}
+
+.data-table th {
+  background-color: #f1f5f9;
+  color: var(--color-brand-navy);
+  font-weight: 700;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--color-border);
+  white-space: nowrap;
+}
+
+.data-table td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--color-border);
+  color: #334155;
+  white-space: nowrap;
+}
+
+.data-table tr:hover {
+  background-color: #f8fafc;
+}
+
+/* -------------------------------------------------------------
+   SQL EXPLORER IDE
+   ------------------------------------------------------------- */
+.sql-ide {
+  background-color: #0f172a;
+  border-radius: 12px;
+  padding: 16px 20px;
+  color: #f8fafc;
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  border: 1px solid #334155;
+  margin-bottom: 16px;
+  overflow-x: auto;
+}
+
+.sql-textarea {
+  width: 100%;
+  height: 150px;
+  background-color: #0f172a;
+  color: #38bdf8;
+  border: 1px solid #334155;
+  border-radius: 10px;
+  padding: 14px;
+  font-family: var(--font-mono);
+  font-size: 0.88rem;
+  outline: none;
+  resize: vertical;
+}
+
+.sql-textarea:focus {
+  border-color: var(--color-accent-blue);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+}
+
+.btn-primary {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-primary:hover {
+  background-color: var(--color-sapphire);
+  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
+}
+
+/* -------------------------------------------------------------
+   SIMULATOR SLIDER
+   ------------------------------------------------------------- */
+.slider-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: var(--color-ice-blue);
+  border: 1px solid var(--color-ice-border);
+  padding: 18px 22px;
+  border-radius: 12px;
+}
+
+.custom-range {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 8px;
+  border-radius: 4px;
+  background: #cbd5e1;
+  outline: none;
+}
+
+.custom-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.4);
+  transition: transform 0.1s ease;
+}
+
+.custom-range::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .app-layout {
+    flex-direction: column;
+  }
+  .app-sidebar {
+    width: 100%;
+    height: auto;
+    position: relative;
+  }
+  .grid-2, .grid-3 {
+    grid-template-columns: 1fr;
+  }
+}
